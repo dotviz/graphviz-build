@@ -102,6 +102,12 @@ pub fn build(b: *std.Build) !void {
             "htmlparse.c",
         },
     });
+    lib.addCSourceFiles(.{
+        .root = b.path("src/common/"),
+        .files = &.{
+            "ns.c",
+        },
+    });
     addInclude(lib, graphviz_dep);
     lib.addIncludePath(b.path("inc/common/"));
     lib_common.addIncludePath(graphviz_dep.path("lib"));
@@ -358,8 +364,14 @@ const src_common = [_][]const u8{
     "splines.c",  "htmllex.c", "colxlate.c", "textspan_lut.c", "postproc.c",
     "taper.c",    "globals.c", "timing.c",   "psusershape.c",  "emit.c",
     "textspan.c", "utils.c",   "args.c",     "routespl.c",     "shapes.c",
-    "pointset.c", "ns.c",      "ellipse.c",  "arrows.c",       "geom.c",
-    "input.c",    "output.c",  "labels.c",   "htmltable.c",
+    "pointset.c", // "ns.c",
+    "ellipse.c",
+    "arrows.c",
+    "geom.c",
+    "input.c",
+    "output.c",
+    "labels.c",
+    "htmltable.c",
 };
 
 const src_util = [_][]const u8{
