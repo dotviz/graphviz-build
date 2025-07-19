@@ -222,48 +222,126 @@ static edge_t *leave_edge(network_simplex_ctx_t *ctx)
     return rv;
 }
 
-static void dfs_enter_outedge(network_simplex_ctx_t *ctx, node_t * v)
+static void dfs_enter_outedge(network_simplex_ctx_t *ctx, node_t *v)
 {
-    int i, slack;
-    edge_t *e;
-
-    for (i = 0; (e = ND_out(v).list[i]); i++) {
-	if (!TREE_EDGE(e)) {
-	    if (!SEQ(ctx->Low, ND_lim(aghead(e)), ctx->Lim)) {
-		slack = SLACK(e);
-		if (slack < ctx->Slack || ctx->Enter == NULL) {
-		    ctx->Enter = e;
-		    ctx->Slack = slack;
-		}
-	    }
-	} else if (ND_lim(aghead(e)) < ND_lim(v))
-	    dfs_enter_outedge(ctx, aghead(e));
+    if (!v || !ctx) return;
+    
+    /* Get graph and allocate stack based on node count */
+    graph_t *g = agraphof(v);
+    int max_nodes = agnnodes(g);
+    
+    if (max_nodes <= 0) return;
+    
+    /* Pre-allocate stack for maximum possible size */
+    node_t **stack = malloc(max_nodes * sizeof(node_t*));
+    if (!stack) return;
+    
+    int stack_size = 0;
+    
+    /* Push initial item */
+    stack[stack_size++] = v;
+    
+    /* DFS traversal */
+    while (stack_size > 0 && ctx->Slack > 0) {
+        /* Pop from stack */
+        node_t *current = stack[--stack_size];
+        
+        /* Process outgoing edges */
+        for (int i = 0; ND_out(current).list[i]; i++) {
+            edge_t *e = ND_out(current).list[i];
+            
+            if (!TREE_EDGE(e)) {
+                /* Non-tree edge - check if it's a candidate */
+                if (!SEQ(ctx->Low, ND_lim(aghead(e)), ctx->Lim)) {
+                    int slack = SLACK(e);
+                    if (slack < ctx->Slack || ctx->Enter == NULL) {
+                        ctx->Enter = e;
+                        ctx->Slack = slack;
+                    }
+                }
+            } else if (ND_lim(aghead(e)) < ND_lim(current)) {
+                /* Tree edge - push child for further exploration */
+                if (stack_size < max_nodes) {
+                    stack[stack_size++] = aghead(e);
+                }
+            }
+        }
+        
+        /* Process incoming tree edges (only if slack > 0) */
+        for (int i = 0; ND_tree_in(current).list[i] && ctx->Slack > 0; i++) {
+            edge_t *e = ND_tree_in(current).list[i];
+            
+            if (ND_lim(agtail(e)) < ND_lim(current)) {
+                /* Push tree node for further exploration */
+                if (stack_size < max_nodes) {
+                    stack[stack_size++] = agtail(e);
+                }
+            }
+        }
     }
-    for (i = 0; (e = ND_tree_in(v).list[i]) && (ctx->Slack > 0); i++)
-	if (ND_lim(agtail(e)) < ND_lim(v))
-	    dfs_enter_outedge(ctx, agtail(e));
+    
+    free(stack);
 }
 
-static void dfs_enter_inedge(network_simplex_ctx_t *ctx, node_t * v)
+static void dfs_enter_inedge(network_simplex_ctx_t *ctx, node_t *v)
 {
-    int i, slack;
-    edge_t *e;
-
-    for (i = 0; (e = ND_in(v).list[i]); i++) {
-	if (!TREE_EDGE(e)) {
-	    if (!SEQ(ctx->Low, ND_lim(agtail(e)), ctx->Lim)) {
-		slack = SLACK(e);
-		if (slack < ctx->Slack || ctx->Enter == NULL) {
-		    ctx->Enter = e;
-		    ctx->Slack = slack;
-		}
-	    }
-	} else if (ND_lim(agtail(e)) < ND_lim(v))
-	    dfs_enter_inedge(ctx, agtail(e));
+    if (!v || !ctx) return;
+    
+    /* Get graph and allocate stack based on node count */
+    graph_t *g = agraphof(v);
+    int max_nodes = agnnodes(g);
+    
+    if (max_nodes <= 0) return;
+    
+    /* Pre-allocate stack for maximum possible size */
+    node_t **stack = malloc(max_nodes * sizeof(node_t*));
+    if (!stack) return;
+    
+    int stack_size = 0;
+    
+    /* Push initial item */
+    stack[stack_size++] = v;
+    
+    /* DFS traversal */
+    while (stack_size > 0 && ctx->Slack > 0) {
+        /* Pop from stack */
+        node_t *current = stack[--stack_size];
+        
+        /* Process incoming edges */
+        for (int i = 0; ND_in(current).list[i]; i++) {
+            edge_t *e = ND_in(current).list[i];
+            
+            if (!TREE_EDGE(e)) {
+                /* Non-tree edge - check if it's a candidate */
+                if (!SEQ(ctx->Low, ND_lim(agtail(e)), ctx->Lim)) {
+                    int slack = SLACK(e);
+                    if (slack < ctx->Slack || ctx->Enter == NULL) {
+                        ctx->Enter = e;
+                        ctx->Slack = slack;
+                    }
+                }
+            } else if (ND_lim(agtail(e)) < ND_lim(current)) {
+                /* Tree edge - push child for further exploration */
+                if (stack_size < max_nodes) {
+                    stack[stack_size++] = agtail(e);
+                }
+            }
+        }
+        
+        /* Process outgoing tree edges (only if slack > 0) */
+        for (int i = 0; ND_tree_out(current).list[i] && ctx->Slack > 0; i++) {
+            edge_t *e = ND_tree_out(current).list[i];
+            
+            if (ND_lim(aghead(e)) < ND_lim(current)) {
+                /* Push tree node for further exploration */
+                if (stack_size < max_nodes) {
+                    stack[stack_size++] = aghead(e);
+                }
+            }
+        }
     }
-    for (i = 0; (e = ND_tree_out(v).list[i]) && ctx->Slack > 0; i++)
-	if (ND_lim(aghead(e)) < ND_lim(v))
-	    dfs_enter_inedge(ctx, aghead(e));
+    
+    free(stack);
 }
 
 static edge_t *enter_edge(network_simplex_ctx_t *ctx, edge_t * e)
@@ -587,23 +665,76 @@ subtree_t *STextractmin(STheap_t *heap)
     return rv;
 }
 
-static
-void tree_adjust(Agnode_t *v, Agnode_t *from, int delta)
+static void tree_adjust(Agnode_t *v, Agnode_t *from, int delta)
 {
-    int i;
-    Agedge_t *e;
-    Agnode_t *w;
-    ND_rank(v) = ND_rank(v) + delta;
-    for (i = 0; (e = ND_tree_in(v).list[i]); i++) {
-      w = agtail(e);
-      if (w != from)
-        tree_adjust(w, v, delta);
+    if (!v) return;
+    
+    /* Stack item for iterative tree traversal */
+    struct {
+        Agnode_t *node;
+        Agnode_t *from;
+    } *stack;
+    
+    /* Get graph and allocate stack based on node count */
+    Agraph_t *g = agraphof(v);
+    int max_nodes = agnnodes(g);
+    
+    if (max_nodes <= 0) return;
+    
+    /* Allocate stack for iterative traversal */
+    stack = malloc(max_nodes * sizeof(*stack));
+    if (!stack) return; /* Handle allocation failure gracefully */
+    
+    int stack_size = 0;
+    
+    /* Push initial item */
+    stack[stack_size].node = v;
+    stack[stack_size].from = from;
+    stack_size++;
+    
+    while (stack_size > 0) {
+        /* Safety check to prevent stack overflow */
+        if (stack_size >= max_nodes) {
+            free(stack);
+            return;
+        }
+        
+        /* Pop from stack */
+        stack_size--;
+        Agnode_t *current = stack[stack_size].node;
+        Agnode_t *current_from = stack[stack_size].from;
+        
+        /* Adjust current node's rank */
+        ND_rank(current) = ND_rank(current) + delta;
+        
+        /* Process incoming tree edges */
+        for (int i = 0; ND_tree_in(current).list[i]; i++) {
+            Agedge_t *e = ND_tree_in(current).list[i];
+            Agnode_t *w = agtail(e);
+            
+            /* Don't go back to where we came from */
+            if (w != current_from) {
+                stack[stack_size].node = w;
+                stack[stack_size].from = current;
+                stack_size++;
+            }
+        }
+        
+        /* Process outgoing tree edges */
+        for (int i = 0; ND_tree_out(current).list[i]; i++) {
+            Agedge_t *e = ND_tree_out(current).list[i];
+            Agnode_t *w = aghead(e);
+            
+            /* Don't go back to where we came from */
+            if (w != current_from) {
+                stack[stack_size].node = w;
+                stack[stack_size].from = current;
+                stack_size++;
+            }
+        }
     }
-    for (i = 0; (e = ND_tree_out(v).list[i]); i++) {
-      w = aghead(e);
-      if (w != from)
-        tree_adjust(w, v, delta);
-    }
+    
+    free(stack);
 }
 
 static
@@ -716,18 +847,80 @@ static Agnode_t *treeupdate(Agnode_t * v, Agnode_t * w, int cutvalue, int dir)
     return v;
 }
 
-static void rerank(Agnode_t * v, int delta)
+/**
+ * Iterative version of rerank function using pre-allocated array stack
+ * Adjusts the rank of all nodes in a subtree by subtracting delta from each node's rank
+ * 
+ * @param v Starting node
+ * @param delta Amount to subtract from node ranks
+ */
+static void rerank(Agnode_t *v, int delta)
 {
-    int i;
-    edge_t *e;
-
-    ND_rank(v) -= delta;
-    for (i = 0; (e = ND_tree_out(v).list[i]); i++)
-	if (e != ND_par(v))
-	    rerank(aghead(e), delta);
-    for (i = 0; (e = ND_tree_in(v).list[i]); i++)
-	if (e != ND_par(v))
-	    rerank(agtail(e), delta);
+    if (!v) return;
+    
+    /* Stack item for iterative tree traversal */
+    struct {
+        Agnode_t *node;
+        edge_t *parent_edge;
+    } *stack;
+    
+    /* Get graph and allocate stack based on node count */
+    Agraph_t *g = agraphof(v);
+    int max_nodes = agnnodes(g);
+    
+    if (max_nodes <= 0) return;
+    
+    /* Pre-allocate stack for maximum possible size */
+    stack = malloc(max_nodes * sizeof(*stack));
+    if (!stack) return;
+    
+    int stack_size = 0;
+    
+    /* Push initial item */
+    stack[stack_size].node = v;
+    stack[stack_size].parent_edge = ND_par(v);
+    stack_size++;
+    
+    /* DFS traversal */
+    while (stack_size > 0) {
+        /* Pop from stack */
+        stack_size--;
+        Agnode_t *current = stack[stack_size].node;
+        edge_t *parent_edge = stack[stack_size].parent_edge;
+        
+        /* Adjust current node's rank */
+        ND_rank(current) -= delta;
+        
+        /* Process outgoing tree edges */
+        for (int i = 0; ND_tree_out(current).list[i]; i++) {
+            edge_t *e = ND_tree_out(current).list[i];
+            
+            if (e != parent_edge) {
+                /* Push child for further processing */
+                if (stack_size < max_nodes) {
+                    stack[stack_size].node = aghead(e);
+                    stack[stack_size].parent_edge = e;
+                    stack_size++;
+                }
+            }
+        }
+        
+        /* Process incoming tree edges */
+        for (int i = 0; ND_tree_in(current).list[i]; i++) {
+            edge_t *e = ND_tree_in(current).list[i];
+            
+            if (e != parent_edge) {
+                /* Push child for further processing */
+                if (stack_size < max_nodes) {
+                    stack[stack_size].node = agtail(e);
+                    stack[stack_size].parent_edge = e;
+                    stack_size++;
+                }
+            }
+        }
+    }
+    
+    free(stack);
 }
 
 /* e is the tree edge that is leaving and f is the nontree edge that
@@ -1166,19 +1359,86 @@ static int x_val(edge_t * e, node_t * v, int dir)
     return rv;
 }
 
-static void dfs_cutval(node_t * v, edge_t * par)
+static void dfs_cutval(node_t *v, edge_t *par)
 {
-    int i;
-    edge_t *e;
-
-    for (i = 0; (e = ND_tree_out(v).list[i]); i++)
-	if (e != par)
-	    dfs_cutval(aghead(e), e);
-    for (i = 0; (e = ND_tree_in(v).list[i]); i++)
-	if (e != par)
-	    dfs_cutval(agtail(e), e);
-    if (par)
-	x_cutval(par);
+    if (!v) return;
+    
+    /* Stack item for iterative tree traversal */
+    struct {
+        node_t *node;
+        edge_t *parent_edge;
+        int phase; /* 0 = processing, 1 = post-processing */
+    } *stack;
+    
+    /* Get graph and allocate stack based on node count */
+    graph_t *g = agraphof(v);
+    int max_nodes = agnnodes(g);
+    
+    if (max_nodes <= 0) return;
+    
+    /* Allocate stack for iterative traversal */
+    stack = malloc(max_nodes * sizeof(*stack));
+    if (!stack) return; /* Handle allocation failure gracefully */
+    
+    int stack_size = 0;
+    
+    /* Push initial item */
+    stack[stack_size].node = v;
+    stack[stack_size].parent_edge = par;
+    stack[stack_size].phase = 0;
+    stack_size++;
+    
+    while (stack_size > 0) {
+        /* Safety check to prevent stack overflow */
+        if (stack_size >= max_nodes) {
+            free(stack);
+            return;
+        }
+        
+        /* Pop from stack */
+        stack_size--;
+        node_t *current = stack[stack_size].node;
+        edge_t *current_par = stack[stack_size].parent_edge;
+        int phase = stack[stack_size].phase;
+        
+        if (phase == 0) {
+            /* First visit - push back for post-processing */
+            stack[stack_size].node = current;
+            stack[stack_size].parent_edge = current_par;
+            stack[stack_size].phase = 1;
+            stack_size++;
+            
+            /* Process outgoing tree edges - push children */
+            for (int i = 0; ND_tree_out(current).list[i]; i++) {
+                edge_t *e = ND_tree_out(current).list[i];
+                if (e != current_par) {
+                    stack[stack_size].node = aghead(e);
+                    stack[stack_size].parent_edge = e;
+                    stack[stack_size].phase = 0;
+                    stack_size++;
+                }
+            }
+            
+            /* Process incoming tree edges - push children */
+            for (int i = 0; ND_tree_in(current).list[i]; i++) {
+                edge_t *e = ND_tree_in(current).list[i];
+                if (e != current_par) {
+                    stack[stack_size].node = agtail(e);
+                    stack[stack_size].parent_edge = e;
+                    stack[stack_size].phase = 0;
+                    stack_size++;
+                }
+            }
+        }
+        else {
+            /* Post-processing - compute cut value for parent edge */
+            if (current_par) {
+                x_cutval(current_par);
+            }
+        }
+    }
+    
+    free(stack);
 }
 
 /// local state used by `dfs_range*`

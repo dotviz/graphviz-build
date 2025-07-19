@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
+    // const optimize = std.builtin.OptimizeMode.Debug;
     const optimize = b.standardOptimizeOption(.{});
 
     const graphviz_dep = b.dependency("graphviz", .{
