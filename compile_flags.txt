@@ -1,36 +1,36 @@
--I$(realpath ..)/graphviz-fork/lib/gvc/
--I$(realpath ..)/graphviz-fork/lib/ast
--I$(realpath ..)/graphviz-fork/lib/cdt
--I$(realpath ..)/graphviz-fork/lib/cgraph
--I$(realpath ..)/graphviz-fork/lib/cgraph++
--I$(realpath ..)/graphviz-fork/lib/circogen
--I$(realpath ..)/graphviz-fork/lib/CMakeLists.txt
--I$(realpath ..)/graphviz-fork/lib/common
--I$(realpath ..)/graphviz-fork/lib/dotgen
--I$(realpath ..)/graphviz-fork/lib/edgepaint
--I$(realpath ..)/graphviz-fork/lib/expr
--I$(realpath ..)/graphviz-fork/lib/fdpgen
--I$(realpath ..)/graphviz-fork/lib/glcomp
--I$(realpath ..)/graphviz-fork/lib/graphvizConfig.cmake
--I$(realpath ..)/graphviz-fork/lib/gvc
--I$(realpath ..)/graphviz-fork/lib/gvc++
--I$(realpath ..)/graphviz-fork/lib/gvpr
--I$(realpath ..)/graphviz-fork/lib/label
--I$(realpath ..)/graphviz-fork/lib/Makefile.am
--I$(realpath ..)/graphviz-fork/lib/mingle
--I$(realpath ..)/graphviz-fork/lib/neatogen
--I$(realpath ..)/graphviz-fork/lib/ortho
--I$(realpath ..)/graphviz-fork/lib/osage
--I$(realpath ..)/graphviz-fork/lib/pack
--I$(realpath ..)/graphviz-fork/lib/patchwork
--I$(realpath ..)/graphviz-fork/lib/pathplan
--I$(realpath ..)/graphviz-fork/lib/rbtree
--I$(realpath ..)/graphviz-fork/lib/sfdpgen
--I$(realpath ..)/graphviz-fork/lib/sfio
--I$(realpath ..)/graphviz-fork/lib/sparse
--I$(realpath ..)/graphviz-fork/lib/topfish
--I$(realpath ..)/graphviz-fork/lib/twopigen
--I$(realpath ..)/graphviz-fork/lib/util
--I$(realpath ..)/graphviz-fork/lib/vmalloc
--I$(realpath ..)/graphviz-fork/lib/vpsc
--I$(realpath ..)/graphviz-fork/lib/xdot
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/gvc/
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/ast
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/cdt
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/cgraph
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/cgraph++
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/circogen
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/CMakeLists.txt
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/common
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/dotgen
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/edgepaint
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/expr
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/fdpgen
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/glcomp
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/graphvizConfig.cmake
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/gvc
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/gvc++
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/gvpr
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/label
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/Makefile.am
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/mingle
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/neatogen
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/ortho
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/osage
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/pack
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/patchwork
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/pathplan
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/rbtree
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/sfdpgen
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/sfio
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/sparse
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/topfish
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/twopigen
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/util
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/vmalloc
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/vpsc
+-I/home/vitalii/Documents/my/dotviz_clean/graphviz-fork/lib/xdot
