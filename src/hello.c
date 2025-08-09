@@ -1,7 +1,9 @@
+// TEST: make sure that graphviz works in wasm
+// zig build run -fwasmtime
+
 #include <gvc.h>
 #include <cgraph.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 extern gvplugin_library_t gvplugin_core_LTX_library;
 extern gvplugin_library_t gvplugin_dot_layout_LTX_library;
